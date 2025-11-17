@@ -21,21 +21,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Show repo root files (debug)
+        run: ls -la
+
+      - name: Show carrental-frontend folder contents (debug)
+        run: ls -la carrental-frontend || echo "carrental-frontend folder not found"
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '18'
           cache: 'npm'
 
       - name: Install dependencies (in subfolder)
         working-directory: carrental-frontend
-        run: npm ci
+        run: |
+          echo "Working dir: $(pwd)"
+          ls -la
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Build (in subfolder)
         working-directory: carrental-frontend
         run: npm run build
         env:
           NODE_ENV: production
+
+      - name: Show build output (debug)
+        run: ls -la carrental-frontend/dist || echo "dist not found"
 
       - name: Upload artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v1
